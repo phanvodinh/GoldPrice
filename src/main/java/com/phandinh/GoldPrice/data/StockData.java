@@ -1,18 +1,26 @@
 package com.phandinh.GoldPrice.data;
 
+import com.phandinh.GoldPrice.model.Stock;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
+@Service
 public class StockData {
-    private static String name, price, priceChange, volume1Day, volume30Days, listedVolume, marketCapitalization, stateOwner;
+    private String name, price, priceChange, volume1Day, volume30Days, listedVolume, marketCapitalization, stateOwner;
+    private List<Stock> stockData;
 
-    public static void getDataFromWeb() {
+    public List<Stock> getDataFromWeb() {
+
         try {
+            stockData = new ArrayList<Stock>();
             // URL của trang web bạn muốn lấy dữ liệu
             String url = "https://www.cophieu68.vn/market/markets.php"; // Thay đổi thành URL thực tế
 
@@ -34,6 +42,7 @@ public class StockData {
 
                 // In ra thông tin từ các thẻ td
                 for (int i = 0; i < tdElements.size(); i++) {
+                    Stock stock = new Stock();
                     name = tdElements.get(0).text();
                     price = tdElements.get(1).text();
                     priceChange = tdElements.get(2).text();
@@ -43,27 +52,34 @@ public class StockData {
                     marketCapitalization = tdElements.get(6).text();
                     stateOwner = tdElements.get(7).text();
 
-                    System.out.println("Mã CP: " + name);
-                    System.out.println("Giá: " + price);
-                    System.out.println("Giá thay đổi: " + priceChange);
-                    System.out.println("KLGD 1 ngày: " + volume1Day);
-                    System.out.println("KLGD 30 ngày: " + volume30Days);
-                    System.out.println("KL niêm yết: " + listedVolume);
-                    System.out.println("Vốn hóa: " + marketCapitalization);
-                    System.out.println("NN sở hữu: " + stateOwner);
-                    System.out.println("Ngày lấy: " + timeFormat);
-                    System.out.println("------------------------------");
+                    stock.setName(name);
+                    stock.setPrice(price);
+                    stock.setPriceChanged(priceChange);
+                    stock.setVol1Day(volume1Day);
+                    stock.setVol30Days(volume30Days);
+                    stock.setListedVol(listedVolume);
+                    stock.setMarketCap(marketCapitalization);
+                    stock.setStateOwn(stateOwner);
+                    stockData.add(stock);
                     break;
+
                 }
+
             }
+
+            return stockData;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return stockData;
     }
 
     public static void main(String[] args) {
+        StockData data = new StockData();
+        for (Stock stock : data.getDataFromWeb()) {
+            System.out.println(stock.toString());
+        }
 
-        getDataFromWeb();
     }
 
 
